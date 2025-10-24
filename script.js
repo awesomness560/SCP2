@@ -363,7 +363,7 @@ class TerminalAnimation {
             // BLACKOUT folder
             { name: 'CAM_03.WAV', url: null, available: false },
             { name: 'SYS_ERR.LOG', url: null, available: false },
-            { name: 'IMSORRY.TXT', url: 'document.html?doc=imsorry', available: true },
+            { name: 'IMSORRY.TXT', url: null, available: false },
             // POST_BLACKOUT folder
             { name: 'INCIDENT_PHEN_0023_A.DOC', url: null, available: false },
             { name: 'CASUALTY_REPORT.DOC', url: null, available: false }

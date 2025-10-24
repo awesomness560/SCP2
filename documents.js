@@ -17,28 +17,7 @@ I am fully aware that my requests to look into reports of an abnormal creature a
 -Dr. Hidiki Sakamoto`
     },
 
-    'imsorry': {
-        title: 'PERSONAL NOTE',
-        classification: 'UNCLASSIFIED',
-        fileType: 'TEXT FILE',
-        documentId: 'N/A',
-        date: '11/29/2005 3:42:17 AM',
-        from: 'Dr. H.Sakamoto',
-        to: 'Personal Log',
-        content: `I'm sorry.
 
-I should have listened to the warnings. The containment protocols weren't enough. 
-
-It's all my fault.
-
-The screaming has stopped now. That's somehow worse than when it was happening.
-
-If anyone finds this, don't look for the specimen. Don't try to contain it again.
-
-Some things should stay in the deep.
-
--H.S.`
-    },
 
     'spec_phen_023': {
         title: 'SPECIMEN PHENOMENA 023 A-C',
