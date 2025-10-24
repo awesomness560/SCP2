@@ -349,7 +349,7 @@ class TerminalAnimation {
             { name: 'STAFF_ASSIGNMENT_2005.DOC', url: null, available: false },
             // CONTAINMENT folder
             { name: 'INITIAL_EXAMINATIONS.DOC', url: null, available: false },
-            { name: 'SPEC_PHEN_023_A-C.DOC', url: null, available: false },
+            { name: 'SPEC_PHEN_023_A-C.DOC', url: 'document.html?doc=spec_phen_023', available: true },
             { name: 'STAFF_ASSIGNMENTS.DOC', url: null, available: false },
             // EXPERIMENTATION folder
             { name: 'PHEN_0023_A_1.JPEG', url: null, available: false },

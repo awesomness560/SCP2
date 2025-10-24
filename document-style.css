@@ -77,6 +77,17 @@ body {
     text-indent: 30px;
 }
 
+.document-body strong {
+    font-weight: bold;
+    color: #000;
+}
+
+/* Special formatting for structured data sections */
+.document-body .structured-field {
+    text-indent: 0;
+    margin-bottom: 10px;
+}
+
 .greeting {
     text-indent: 0 !important;
     font-weight: bold;
