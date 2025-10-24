@@ -174,59 +174,111 @@ class TerminalAnimation {
 
         await this.sleep(800);
         this.newLine();
-        await this.instantText('C:\\User\\H_Sakamoto\\Project_Ningyo>', 'prompt');
-        this.enableUserInput();
+        await this.instantText('Use arrow keys to navigate, Enter to open file', 'prompt');
+        this.newLine();
+        this.enableFileNavigation();
     }
 
-    enableUserInput() {
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'input-field';
-        input.placeholder = '';
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.handleUserCommand(input.value);
-                input.remove();
-                this.newLine();
+    enableFileNavigation() {
+        // Define navigatable files
+        this.navigatableFiles = [
+            { name: 'FIRST_REPORTS.DOC', url: 'document.html?doc=first_reports', available: true },
+            { name: 'ACQUISITION.DOC', url: null, available: false },
+            { name: 'STAFF_ASSIGNMENT_2005.DOC', url: null, available: false },
+            { name: 'INITIAL_EXAMINATIONS.DOC', url: null, available: false },
+            { name: 'SPEC_PHEN_023_A-C.DOC', url: null, available: false },
+            { name: 'STAFF_ASSIGNMENTS.DOC', url: null, available: false },
+            { name: 'PHEN_0023_A_1.JPEG', url: null, available: false },
+            { name: 'PHEN_0023_B.ZIP', url: null, available: false },
+            { name: 'CHEMICAL_RESPONSE_TEST.DOC', url: null, available: false },
+            { name: 'STIMULAI_RESPONSE_TEST.DOC', url: null, available: false },
+            { name: 'SENSOR_ERR.LOG', url: null, available: false },
+            { name: 'OVERNIGHT_OBSERVATION.WAV', url: null, available: false },
+            { name: 'PERSONAL_NOTES(DELETE_THIS).TXT', url: null, available: false },
+            { name: 'BUDGET_ADJUSTMENT_REQUEST.DOC', url: null, available: false },
+            { name: 'CAM_03.WAV', url: null, available: false },
+            { name: 'SYS_ERR.LOG', url: null, available: false },
+            { name: 'IMSORRY.TXT', url: 'document.html?doc=imsorry', available: true },
+            { name: 'INCIDENT_PHEN_0023_A.DOC', url: null, available: false },
+            { name: 'CASUALTY_REPORT.DOC', url: null, available: false }
+        ];
+
+        this.currentFileIndex = 0;
+        this.highlightCurrentFile();
+
+        // Add keyboard event listener
+        document.addEventListener('keydown', this.handleKeyNavigation.bind(this));
+    }
+
+    handleKeyNavigation(event) {
+        switch (event.key) {
+            case 'ArrowUp':
+                event.preventDefault();
+                if (this.currentFileIndex > 0) {
+                    this.currentFileIndex--;
+                    this.highlightCurrentFile();
+                }
+                break;
+            case 'ArrowDown':
+                event.preventDefault();
+                if (this.currentFileIndex < this.navigatableFiles.length - 1) {
+                    this.currentFileIndex++;
+                    this.highlightCurrentFile();
+                }
+                break;
+            case 'Enter':
+                event.preventDefault();
+                this.openCurrentFile();
+                break;
+        }
+    }
+
+    highlightCurrentFile() {
+        // Remove previous highlights
+        const highlighted = document.querySelectorAll('.file-highlighted');
+        highlighted.forEach(el => el.classList.remove('file-highlighted'));
+
+        // Find and highlight current file
+        const currentFile = this.navigatableFiles[this.currentFileIndex];
+        const fileElements = document.querySelectorAll('.line');
+
+        fileElements.forEach(line => {
+            if (line.textContent.includes(currentFile.name)) {
+                line.classList.add('file-highlighted');
+                line.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         });
 
-        if (this.currentLine) {
-            this.currentLine.appendChild(input);
-            input.focus();
-        }
+        // Show file info
+        this.showFileInfo(currentFile);
     }
 
-    handleUserCommand(command) {
-        this.newLine();
+    showFileInfo(file) {
+        // Remove previous file info
+        const existingInfo = document.querySelector('.file-info');
+        if (existingInfo) existingInfo.remove();
 
-        // Handle specific commands
-        if (command.toLowerCase() === 'dir' || command.toLowerCase() === 'ls') {
-            window.location.href = 'file-list.html';
-            return;
-        } else if (command.toLowerCase().includes('first_reports.doc')) {
-            window.location.href = 'document.html?doc=first_reports';
-            return;
-        } else if (command.toLowerCase().includes('imsorry.txt')) {
-            window.location.href = 'document.html?doc=imsorry';
-            return;
-        } else if (command.toLowerCase() === 'help') {
-            this.instantText('Available commands: dir, ls, help, exit', '');
-            this.newLine();
-            this.instantText('Available files: FIRST_REPORTS.DOC, IMSORRY.TXT', '');
-        } else if (command.toLowerCase() === 'exit') {
-            this.instantText('Logging out...', '');
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000);
-            return;
+        // Add file info
+        const infoLine = document.createElement('div');
+        infoLine.className = 'line file-info';
+
+        let status = file.available ? '[AVAILABLE]' : '[RESTRICTED]';
+        let statusClass = file.available ? 'success' : 'error';
+
+        infoLine.innerHTML = `<span class="${statusClass}">${status}</span> ${file.name}`;
+        this.terminal.appendChild(infoLine);
+        this.terminal.scrollTop = this.terminal.scrollHeight;
+    }
+
+    openCurrentFile() {
+        const currentFile = this.navigatableFiles[this.currentFileIndex];
+        if (currentFile.available && currentFile.url) {
+            window.location.href = currentFile.url;
         } else {
-            this.instantText(`Command not recognized: ${command}`, 'error');
+            // Show access denied message
+            this.newLine();
+            this.instantText('ACCESS DENIED - Insufficient clearance level', 'error');
         }
-
-        this.newLine();
-        this.instantText('C:\\User\\H_Sakamoto\\Project_Ningyo>', 'prompt');
-        this.enableUserInput();
     }
 
     async typeLine(text, className = '') {
