@@ -4,6 +4,8 @@ class TerminalAnimation {
         this.cursor = document.getElementById('cursor');
         this.currentLine = null;
         this.isTyping = false;
+        this.animationSkipped = false;
+        this.animationComplete = false;
 
         // Debug logging
         console.log('Terminal element:', this.terminal);
@@ -13,6 +15,9 @@ class TerminalAnimation {
             console.error('Terminal or cursor element not found!');
             return;
         }
+
+        // Add skip animation listener
+        document.addEventListener('keydown', this.handleSkipAnimation.bind(this));
         this.sequence = [
             { text: 'Loading…', delay: 1000, class: 'success', slow: true },
             { text: 'Loading…', delay: 1000, class: 'success', slow: true },
@@ -49,11 +54,18 @@ class TerminalAnimation {
         // Initialize first line
         this.newLine();
 
+        // Show skip text in corner
+        this.createSkipText();
+
         await this.sleep(1000);
         this.runSequence();
     }
 
     async runSequence() {
+        if (this.animationSkipped) {
+            return; // Don't call skipToEnd here as it's already called
+        }
+
         if (this.currentStep >= this.sequence.length) {
             return;
         }
@@ -77,29 +89,47 @@ class TerminalAnimation {
     }
 
     async handleLogin() {
+        if (this.animationSkipped) return;
+
         await this.typeCommand('C:\\>', 'login H_Sakamoto');
         this.newLine();
         await this.sleep(300);
+
+        if (this.animationSkipped) return;
+
         await this.typeLine('Submit credentials...', '');
         await this.sleep(200);
+
+        if (this.animationSkipped) return;
+
         await this.handlePasswordAttempts();
     }
 
     async handlePasswordAttempts() {
+        if (this.animationSkipped) return;
+
         const passwords = ['********', '******', '**********'];
         const attempts = ['Two out of three', 'One out of three'];
 
         for (let i = 0; i < 3; i++) {
+            if (this.animationSkipped) return;
+
             this.newLine();
             await this.instantText('Password:', '');
-            await this.sleep(400); // Delay before user starts typing password
+            await this.sleep(400);
+
+            if (this.animationSkipped) return;
+
             await this.fastTypeText(passwords[i], 'password-field');
             await this.sleep(400);
 
             if (i < 2) {
+                if (this.animationSkipped) return;
                 await this.typeLine(`Error: Password incorrect. ${attempts[i]} attempts remaining`, 'error');
                 await this.sleep(400);
             } else {
+                if (this.animationSkipped) return;
+
                 this.newLine();
                 await this.typeLine('Authenticating. . . .', '');
                 await this.sleep(200);
@@ -115,17 +145,31 @@ class TerminalAnimation {
                 await this.sleep(400);
                 await this.typeLine('Last Login: Wed, Dec 2, 2005', '');
                 await this.sleep(400);
+
+                if (this.animationSkipped) return;
+
                 await this.handleFileSystem();
             }
         }
     }
 
     async handleFileSystem() {
+        if (this.animationSkipped) return;
+
         await this.sleep(300);
+
+        if (this.animationSkipped) return;
+
         await this.typeCommand('C:\\User\\H_Sakamoto>', 'cd Project_Ningyo');
         await this.sleep(200);
+
+        if (this.animationSkipped) return;
+
         await this.typeCommand('C:\\User\\H_Sakamoto\\Project_Ningyo>', 'dir');
         await this.sleep(300);
+
+        if (this.animationSkipped) return;
+
         await this.showFileTree();
     }
 
@@ -176,18 +220,138 @@ class TerminalAnimation {
         this.newLine();
         await this.instantText('Use arrow keys to navigate, Enter to open file', 'prompt');
         this.newLine();
+        this.animationComplete = true;
+        this.removeSkipText();
+        this.enableFileNavigation();
+    }
+
+    createSkipText() {
+        const skipText = document.createElement('div');
+        skipText.id = 'skip-text';
+        skipText.textContent = "Press 'R' to skip animation";
+        skipText.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            color: #00ff00;
+            font-family: 'Courier Prime', monospace;
+            font-size: 14px;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 10px 15px;
+            border: 1px solid #333;
+            border-radius: 3px;
+            z-index: 1000;
+            opacity: 0.8;
+        `;
+        document.body.appendChild(skipText);
+    }
+
+    removeSkipText() {
+        const skipText = document.getElementById('skip-text');
+        if (skipText) {
+            skipText.remove();
+        }
+    }
+
+    handleSkipAnimation(event) {
+        if (event.key.toLowerCase() === 'r' && !this.animationComplete) {
+            this.animationSkipped = true;
+            this.removeSkipText();
+
+            // Stop any ongoing animations
+            this.isTyping = false;
+
+            // Remove any existing event listeners to prevent conflicts
+            document.removeEventListener('keydown', this.handleSkipAnimation.bind(this));
+
+            this.skipToEnd();
+        }
+    }
+
+    async skipToEnd() {
+        // Clear terminal
+        this.terminal.innerHTML = '';
+        this.currentLine = null;
+
+        // Show final state instantly
+        this.instantLine('System Startup Successful', 'success');
+        this.instantLine('[United States Department of Extranormal Phenomena: Site Delta: Biosciences Unit Archive- Terminal 005-a]', 'header');
+        this.instantLine('[Date: 12/15/2005]', 'header');
+        this.instantLine('', '');
+        this.instantLine('WARNING: YOU ARE ATTEMPTING TO ACCESS A TOP SECRET US GOVERNMENT COMPUTER DATABASE', 'warning');
+        this.instantLine('INTENDED TO BE SOLELY ACCESSED BY AUTHORIZED USERS ONLY.', 'warning');
+        this.instantLine('', '');
+        this.instantLine('Usage MAY BE MONITORED, RECORDED, AND/OR SUBJECT TO AUDIT. UNAUTHORIZED USE OF THIS', 'warning');
+        this.instantLine('SYSTEM IS PROHIBITED. UNAUTHORIZED USERS WILL BE SUBJECT TO termination, immediate', 'warning');
+        this.instantLine('criminal prosecution in accordance with US code 18 subsection 1030 and all other', 'warning');
+        this.instantLine('applicable statutes', 'warning');
+        this.instantLine('', '');
+        this.instantLine('c:\\>login H_Sakamoto', 'prompt');
+        this.instantLine('Submit credentials...', '');
+        this.instantLine('Password:**********', '');
+        this.instantLine('Credentials Verified. Zeta Level Access Granted. Welcome back, Dr. Hidiki Sakamoto.', 'success');
+        this.instantLine('Last Login: Wed, Dec 2, 2005', '');
+        this.instantLine('C:\\User\\H_Sakamoto>cd Project_Ningyo', 'prompt');
+        this.instantLine('C:\\User\\H_Sakamoto\\Project_Ningyo>dir', 'prompt');
+
+        // Wait a moment before showing file tree (like the normal animation)
+        await this.sleep(500);
+
+        // Show file tree
+        const fileTreeLines = [
+            '.',
+            '└── PROJECT_NINGYO/',
+            '    ├── DISCOVERY/',
+            '    │   ├── FIRST_REPORTS.DOC',
+            '    │   ├── ACQUISITION.DOC',
+            '    │   └── STAFF_ASSIGNMENT_2005.DOC',
+            '    ├── CONTAINMENT/',
+            '    │   ├── INITIAL_EXAMINATIONS.DOC',
+            '    │   ├── SPEC_PHEN_023_A-C.DOC',
+            '    │   └── STAFF_ASSIGNMENTS.DOC',
+            '    ├── EXPERIMENTATION/',
+            '    │   ├── PHEN_0023_A_1.JPEG',
+            '    │   ├── PHEN_0023_B.ZIP',
+            '    │   ├── CHEMICAL_RESPONSE_TEST.DOC',
+            '    │   ├── STIMULAI_RESPONSE_TEST.DOC',
+            '    │   ├── SENSOR_ERR.LOG',
+            '    │   ├── OVERNIGHT_OBSERVATION.WAV',
+            '    │   ├── PERSONAL_NOTES(DELETE_THIS).TXT',
+            '    │   └── BUDGET_ADJUSTMENT_REQUEST.DOC',
+            '    ├── BLACKOUT/',
+            '    │   ├── CAM_03.WAV',
+            '    │   ├── SYS_ERR.LOG',
+            '    │   └── IMSORRY.TXT',
+            '    └── POST_BLACKOUT/',
+            '        ├── INCIDENT_PHEN_0023_A.DOC',
+            '        └── CASUALTY_REPORT.DOC'
+        ];
+
+        for (const line of fileTreeLines) {
+            this.instantLine(line, 'file-tree');
+        }
+
+        await this.sleep(300);
+        this.newLine();
+        this.instantText('Use arrow keys to navigate, Enter to open file', 'prompt');
+        this.newLine();
+        this.animationComplete = true;
+        this.removeSkipText();
         this.enableFileNavigation();
     }
 
     enableFileNavigation() {
-        // Define navigatable files
+        // Define all navigatable files in EXACT order they appear in the tree
         this.navigatableFiles = [
+            // DISCOVERY folder
             { name: 'FIRST_REPORTS.DOC', url: 'document.html?doc=first_reports', available: true },
             { name: 'ACQUISITION.DOC', url: null, available: false },
             { name: 'STAFF_ASSIGNMENT_2005.DOC', url: null, available: false },
+            // CONTAINMENT folder
             { name: 'INITIAL_EXAMINATIONS.DOC', url: null, available: false },
             { name: 'SPEC_PHEN_023_A-C.DOC', url: null, available: false },
             { name: 'STAFF_ASSIGNMENTS.DOC', url: null, available: false },
+            // EXPERIMENTATION folder
             { name: 'PHEN_0023_A_1.JPEG', url: null, available: false },
             { name: 'PHEN_0023_B.ZIP', url: null, available: false },
             { name: 'CHEMICAL_RESPONSE_TEST.DOC', url: null, available: false },
@@ -196,9 +360,11 @@ class TerminalAnimation {
             { name: 'OVERNIGHT_OBSERVATION.WAV', url: null, available: false },
             { name: 'PERSONAL_NOTES(DELETE_THIS).TXT', url: null, available: false },
             { name: 'BUDGET_ADJUSTMENT_REQUEST.DOC', url: null, available: false },
+            // BLACKOUT folder
             { name: 'CAM_03.WAV', url: null, available: false },
             { name: 'SYS_ERR.LOG', url: null, available: false },
             { name: 'IMSORRY.TXT', url: 'document.html?doc=imsorry', available: true },
+            // POST_BLACKOUT folder
             { name: 'INCIDENT_PHEN_0023_A.DOC', url: null, available: false },
             { name: 'CASUALTY_REPORT.DOC', url: null, available: false }
         ];
@@ -206,7 +372,8 @@ class TerminalAnimation {
         this.currentFileIndex = 0;
         this.highlightCurrentFile();
 
-        // Add keyboard event listener
+        // Remove skip listener and add navigation listener
+        document.removeEventListener('keydown', this.handleSkipAnimation.bind(this));
         document.addEventListener('keydown', this.handleKeyNavigation.bind(this));
     }
 
@@ -242,10 +409,14 @@ class TerminalAnimation {
         const currentFile = this.navigatableFiles[this.currentFileIndex];
         const fileElements = document.querySelectorAll('.line');
 
+        let found = false;
         fileElements.forEach(line => {
-            if (line.textContent.includes(currentFile.name)) {
+            // More precise matching - look for lines that end with the filename and contain tree characters
+            const lineText = line.textContent.trim();
+            if (!found && lineText.endsWith(currentFile.name) && (lineText.includes('├──') || lineText.includes('└──'))) {
                 line.classList.add('file-highlighted');
                 line.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                found = true;
             }
         });
 
