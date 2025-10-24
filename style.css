@@ -1,0 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #000;
+    font-family: 'Courier Prime', monospace;
+    color: #00ff00;
+    overflow: hidden;
+    height: 100vh;
+}
+
+.terminal {
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+    border: 2px solid #333;
+    position: relative;
+}
+
+.terminal-header {
+    background-color: #333;
+    color: #fff;
+    padding: 5px 10px;
+    font-size: 12px;
+    border-bottom: 1px solid #555;
+}
+
+.terminal-content {
+    padding: 20px;
+    height: calc(100vh - 40px);
+    overflow-y: auto;
+    font-size: 14px;
+    line-height: 1.4;
+    position: relative;
+}
+
+.line {
+    margin-bottom: 5px;
+    white-space: pre-wrap;
+}
+
+.warning {
+    color: #ff6600;
+    font-weight: bold;
+}
+
+.error {
+    color: #ff0000;
+    font-weight: bold;
+}
+
+.success {
+    color: #00ff00;
+    font-weight: bold;
+}
+
+.header {
+    color: #ffff00;
+    font-weight: bold;
+}
+
+.prompt {
+    color: #00ffff;
+}
+
+.cursor {
+    display: inline-block;
+    animation: blink 1s infinite;
+    color: #00ff00;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+.file-tree {
+    color: #cccccc;
+    font-family: 'Courier Prime', monospace;
+    margin-left: 20px;
+}
+
+.file-tree .folder {
+    color: #ffff00;
+}
+
+.file-tree .file {
+    color: #cccccc;
+}
+
+.input-field {
+    background: transparent;
+    border: none;
+    color: #00ff00;
+    font-family: 'Courier Prime', monospace;
+    font-size: 14px;
+    outline: none;
+    width: 200px;
+}
+
+.password-field {
+    color: #ff6600;
+}
+
+/* Scrollbar styling */
+.terminal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.terminal-content::-webkit-scrollbar-track {
+    background: #000;
+}
+
+.terminal-content::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+}
+
+.terminal-content::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
